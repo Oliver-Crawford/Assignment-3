@@ -17,6 +17,7 @@ namespace Assignment_3
             string studentFolderName = "students";
             bool running = true;
             string chooseText = "Please Choose: ";
+            string tableHeader = "ID |  Name |  Age |  Address |  GPA";
             if (!Directory.Exists(studentFolderName))
             {
                 Directory.CreateDirectory(studentFolderName);
@@ -39,13 +40,13 @@ namespace Assignment_3
                         DeleteStudent(SanitizeIntInput(), studentFolderName);
                         break;
                     case 4:
-                        ViewStudentsByGPA(studentFolderName);
+                        ViewStudentsByGPA(studentFolderName, tableHeader);
                         break;
                     case 5:
-                        ViewStudentsByName(studentFolderName);
+                        ViewStudentsByName(studentFolderName, tableHeader);
                         break;
                     case 6:
-                        ViewAllStudents(studentFolderName);
+                        ViewAllStudents(studentFolderName, tableHeader);
                         break;
                     case 0:
                         running = false;
@@ -155,9 +156,9 @@ namespace Assignment_3
             }
 
         }
-        static void ViewAllStudents(string studentFolderName)
+        static void ViewAllStudents(string studentFolderName, string tableHeader)
         {
-            Console.WriteLine("ID |  Name |  Age |  Address |  GPA");
+            Console.WriteLine(tableHeader);
             foreach(string file in Directory.GetFiles(studentFolderName))
             {
                 using (StreamReader sr = new StreamReader(file))
@@ -219,8 +220,9 @@ namespace Assignment_3
             File.Delete($"{studentFolderName}\\{id}");
             Console.WriteLine("Student Removed.");
         }
-        static void ViewStudentsByGPA(string studentFolderName)
+        static void ViewStudentsByGPA(string studentFolderName, string tableHeader)
         {
+            Console.WriteLine(tableHeader);
             string[,] students = getMDRArray(studentFolderName);
             float largestGPA = float.MinValue;
             int largestGPAIndex = 0;
@@ -265,8 +267,9 @@ namespace Assignment_3
                 largestGPA = float.MinValue;
                 students[largestGPAIndex, 4] = $"{largestGPA}";            }
         }
-        static void ViewStudentsByName(string studentFolderName)
+        static void ViewStudentsByName(string studentFolderName, string tableHeader)
         {
+            Console.WriteLine(tableHeader);
             string[,] students = getMDRArray(studentFolderName);
             List<string> studentNames = new List<string>();
             for(int i = 0; i < students.GetLength(0); i++)
