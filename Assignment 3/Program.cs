@@ -55,15 +55,7 @@ namespace Assignment_3
         }
         static void DisplayMenu()
         {
-            using (StreamReader file = File.OpenText("menu.txt"))
-            {
-                string textLine = file.ReadLine();
-                while (textLine != null)
-                {
-                    Console.WriteLine(textLine);
-                    textLine = file.ReadLine();
-                }
-            }
+            Console.WriteLine("/****************************************/\r\n1. Add student.\r\n2. Edit student by id.\r\n3. Delete student by id.\r\n4. Sort student by gpa.\r\n5. Sort student by name.\r\n6. Show all students.\r\n0. exit.\r\n/****************************************/");
         }
         static int SanitizeIntInput()
         {
