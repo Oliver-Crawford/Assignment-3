@@ -17,7 +17,10 @@ namespace Assignment_3
             string studentFolderName = "students";
             bool running = true;
             string chooseText = "Please Choose: ";
-
+            if (!Directory.Exists(studentFolderName))
+            {
+                Directory.CreateDirectory(studentFolderName);
+            }
             while (running)
             {
                 DisplayMenu();
