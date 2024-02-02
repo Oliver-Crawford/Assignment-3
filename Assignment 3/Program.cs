@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Globalization;
 
 namespace Assignment_3
 {
@@ -45,10 +46,11 @@ namespace Assignment_3
                         EditStudent(SanitizeIntInput(), studentFolderName);
                         break;
                     case 3:
-
+                        Console.Write("Please input ID: ");
+                        DeleteStudent(SanitizeIntInput(), studentFolderName);
                         break;
                     case 4:
-
+                        ViewStudentsByGPA(studentFolderName);
                         break;
                     case 5:
 
@@ -136,7 +138,7 @@ namespace Assignment_3
             string name;
             int age;
             string address;
-            float gpa;
+            float gpa = -1;
             Console.Write("Input Student Name: ");
             name = SanitizeStringInput();
             Console.WriteLine("");
@@ -147,7 +149,12 @@ namespace Assignment_3
             address = SanitizeStringInput();
             Console.WriteLine("");
             Console.Write("Input Student GPA: ");
-            gpa = SanitizeFloatInput();
+            do
+            {
+                gpa = SanitizeFloatInput();
+                if (gpa < 0) { Console.WriteLine("Invalid GPA, GPA must be greater or equal to 0."); }
+            } while (gpa < 0);
+            
             Console.WriteLine("");
 
             while (true)
@@ -182,7 +189,7 @@ namespace Assignment_3
         {
             if (!File.Exists($"{studentFolderName}\\{id}"))
             {
-                Console.WriteLine("Id does not exist!");
+                Console.WriteLine("ID does not exist!");
                 return;
             }
             string oldName = "";
@@ -211,7 +218,6 @@ namespace Assignment_3
             address = SanitizeStringInput();
             Console.Write("Enter new GPA: ");
             gpa = SanitizeFloatInput();
-
             File.Delete(($"{studentFolderName}\\{id}"));
             using(StreamWriter sw = new StreamWriter($"{studentFolderName}\\{id}"))
             {
@@ -221,7 +227,80 @@ namespace Assignment_3
                 sw.WriteLine(address);
                 sw.WriteLine(gpa);
             }
+        }
+        static void DeleteStudent(int id, string studentFolderName)
+        {
+            if (!File.Exists($"{studentFolderName}\\{id}"))
+            {
+                Console.WriteLine("ID does not exist!");
+                return;
+            }
+            File.Delete($"{studentFolderName}\\{id}");
+            Console.WriteLine("Student Removed.");
+        }
+        static void ViewStudentsByGPA(string studentFolderName)
+        {
+            int numberOfFiles = 0;
+            foreach (string file in Directory.GetFiles(studentFolderName))
+            {
+                numberOfFiles++;
+            }
+            string[,] students = new string[numberOfFiles, 5];
+            int indexTop = 0;
+            foreach(string file in Directory.GetFiles(studentFolderName))
+            {
+                int index = 0;
+                using (StreamReader sr = new StreamReader(file))
+                {
+                    while (index < 5)
+                    {
+                        students[indexTop, index++] = sr.ReadLine();
+                    }
+                }
+                indexTop++;
+            }
+            float largestGPA = float.MinValue;
+            int largestGPAIndex = 0;
+            int[] usedIds = new int[students.GetLength(0)];
+            for (int i = 0; i < usedIds.Length; i++)
+            {
+                usedIds[i] = -1;
+            }
+            int usedIndex = 0;
+            for(int i = 0; i < students.GetLength(0); i++)
+            {
+                for(int j = 0; j < students.GetLength(0); j++)
+                {
+                    float container;
+                    float.TryParse(students[j, 4], out container);
+                    bool repeated = false;
+                    if (container >= largestGPA)
+                    {
+                        for(int k = 0; k < usedIds.Length; k++)
+                        {
+                            if (usedIds[k] == -1)
+                            {
+                                break;
+                            }
+                            if (usedIds[k] == j)
+                            {
+                                repeated = true;
+                                break;
+                            }
+                        }
+                        if (repeated)
+                        {
+                            continue;
+                        }
+                        largestGPA = container;
+                        largestGPAIndex = j;
+                    }
 
+                }
+                usedIds[usedIndex++] = largestGPAIndex;
+                Console.WriteLine($"  {students[largestGPAIndex, 0]} |  {students[largestGPAIndex, 1]} |  {students[largestGPAIndex, 2]} |  {students[largestGPAIndex, 3]} |  {students[largestGPAIndex, 4]}");
+                largestGPA = float.MinValue;
+                students[largestGPAIndex, 4] = $"{largestGPA}";            }
         }
     }
     
