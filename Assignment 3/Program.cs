@@ -5,27 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
+using System.Runtime.Remoting.Messaging;
+using System.Security.AccessControl;
 
 namespace Assignment_3
 {
     internal class Program
     {
-        class Student
-        {
-            public int id;
-            public string name;
-            public int age;
-            public string address;
-            public float gpa;
-            public Student(int idInit, string nameInit, int ageInit, string addressInit, float gpaInit)
-            {
-                id = idInit;
-                name = nameInit;
-                age = ageInit;
-                address = addressInit;
-                gpa = gpaInit;
-            }
-        }
         static void Main(string[] args)
         {
             string studentFolderName = "students";
@@ -53,7 +39,7 @@ namespace Assignment_3
                         ViewStudentsByGPA(studentFolderName);
                         break;
                     case 5:
-
+                        ViewStudentsByName(studentFolderName);
                         break;
                     case 6:
                         ViewAllStudents(studentFolderName);
@@ -240,25 +226,7 @@ namespace Assignment_3
         }
         static void ViewStudentsByGPA(string studentFolderName)
         {
-            int numberOfFiles = 0;
-            foreach (string file in Directory.GetFiles(studentFolderName))
-            {
-                numberOfFiles++;
-            }
-            string[,] students = new string[numberOfFiles, 5];
-            int indexTop = 0;
-            foreach(string file in Directory.GetFiles(studentFolderName))
-            {
-                int index = 0;
-                using (StreamReader sr = new StreamReader(file))
-                {
-                    while (index < 5)
-                    {
-                        students[indexTop, index++] = sr.ReadLine();
-                    }
-                }
-                indexTop++;
-            }
+            string[,] students = getMDRArray(studentFolderName);
             float largestGPA = float.MinValue;
             int largestGPAIndex = 0;
             int[] usedIds = new int[students.GetLength(0)];
@@ -301,6 +269,52 @@ namespace Assignment_3
                 Console.WriteLine($"  {students[largestGPAIndex, 0]} |  {students[largestGPAIndex, 1]} |  {students[largestGPAIndex, 2]} |  {students[largestGPAIndex, 3]} |  {students[largestGPAIndex, 4]}");
                 largestGPA = float.MinValue;
                 students[largestGPAIndex, 4] = $"{largestGPA}";            }
+        }
+        static void ViewStudentsByName(string studentFolderName)
+        {
+            string[,] students = getMDRArray(studentFolderName);
+            List<string> studentNames = new List<string>();
+            for(int i = 0; i < students.GetLength(0); i++)
+            {
+                studentNames.Add($"{students[i, 1]}");
+            }
+            studentNames.Sort();
+            for(int i = 0; i < studentNames.Count(); i++)
+            {
+                for(int b = 0; b < students.GetLength(0); b++)
+                {
+                    if (students[b, 1] == studentNames[i])
+                    {
+                        Console.WriteLine($"  {students[b, 0]} |  {students[b, 1]} |  {students[b, 2]} |  {students[b, 3]} |  {students[b, 4]}");
+                        students[b, 1] = "";
+                    }
+                }
+            }
+
+
+        }
+        static string[,] getMDRArray(string studentFolderName)
+        {
+            int numberOfFiles = 0;
+            foreach (string file in Directory.GetFiles(studentFolderName))
+            {
+                numberOfFiles++;
+            }
+            string[,] students = new string[numberOfFiles, 5];
+            int indexTop = 0;
+            foreach (string file in Directory.GetFiles(studentFolderName))
+            {
+                int index = 0;
+                using (StreamReader sr = new StreamReader(file))
+                {
+                    while (index < 5)
+                    {
+                        students[indexTop, index++] = sr.ReadLine();
+                    }
+                }
+                indexTop++;
+            }
+            return students;
         }
     }
     
